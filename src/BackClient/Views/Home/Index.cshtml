@@ -1,0 +1,12 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<form action="home/SendTask" method="post">
+    <div class="form-group">
+        <label for="InputTask">Task</label>
+        <input  class="form-control" name="inputTask" id="InputTask" aria-describedby="TaskHelp" placeholder="Enter Task" value="">
+        <small id="TaskHelp" class="form-text text-muted">You should Describe your task</small>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
