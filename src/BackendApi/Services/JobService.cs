@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
@@ -26,17 +27,42 @@ namespace BackendApi.Services
         public override Task<RegisterResponse> Register(RegisterRequest request, ServerCallContext context)
         {
             string id = Guid.NewGuid().ToString();
+            db.HashSet(id, "description", request.Description);
+            db.HashSet(id, "data", request.Data);
+
             var resp = new RegisterResponse
             {
                 Id = id
             };
-            _jobs[id] = request.Description;
-            
-            db.StringSet(id, request.Description);
             greeterService.RunAsync(_connection, id).Wait();
         
             
             return Task.FromResult(resp);
         }
+
+      public override Task<ProcessingResult> GetProcessingResult(RegisterResponse id, ServerCallContext context)
+        {
+            var resp = new ProcessingResult
+            {
+                IsComplete = false,
+                TextRank = ""
+            };
+
+            for (int i = 0; i < 5; ++i)
+            {
+                Thread.Sleep(2000);
+                Console.WriteLine(id.Id);
+                string textRank = db.HashGet(id.Id, "text_rank");
+                if (textRank != null)
+                {
+                    resp.IsComplete = true;
+                    resp.TextRank = textRank;
+                    break;
+                }
+            }
+
+            return Task.FromResult(resp);
+        }
     }
+   
 }

@@ -22,7 +22,7 @@ namespace Logger
 
             greetings.Subscribe(msg =>
             {
-                string description = db.StringGet(msg);
+                string description = db.HashGet(msg, "description");
                 Console.WriteLine($"id: {msg}; description: {description}");
             });
         }    

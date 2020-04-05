@@ -14,6 +14,7 @@ if exist "src" (
   dotnet build BackClient -c Release --output "%appVersion%"/BackClient/bin
   dotnet build BackendApi -c Release --output "%appVersion%"/BackendApi/bin
   dotnet build JobLogger -c Release --output "%appVersion%"/JobLogger/bin
+  dotnet build TextRankCalc -c Release --output "%appVersion%"/TextRankCalc/bin
   mkdir "%appVersion%"/config
   
 ) else (
@@ -32,12 +33,14 @@ cd  %appVersion%
 echo start %cd%\BackClient\bin\BackClient.exe
 echo start %cd%\BackendApi\bin\BackendApi.exe
 echo start %cd%\JobLogger\bin\JobLogger.exe
+echo start %cd%\TextRankCalc\bin\TextRankCalc.exe
 )>start.cmd
 
 (echo. @echo off
 echo taskkill /IM BackClient.exe
 echo taskkill /IM BackendApi.exe
 echo taskkill /IM JobLogger.exe
+echo taskkill /IM TextRankCalc.exe
 )>stop.cmd
 
 

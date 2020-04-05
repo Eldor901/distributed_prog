@@ -8,12 +8,18 @@ using Microsoft.Extensions.Logging;
 using BackClient.Models;
 using Grpc.Net.Client;
 using BackendApi;
+ using BackClient.Models;
+ using Microsoft.AspNetCore.Routing;
 
 
-
-
-namespace BackClient.Controllers
+ namespace BackClient.Controllers
 {
+    
+    public class TryToRiderct
+    {
+        public string  Resp { get; set; }
+    }
+
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -35,29 +41,36 @@ namespace BackClient.Controllers
         {
             return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
         }
-        
+
         [HttpPost]
-        public  async Task<IActionResult> SendTask(string inputTask, string inputData)
+        public async Task<IActionResult> SendTask(string inputTask, string inputData)
         {
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             using var channel = GrpcChannel.ForAddress("http://localhost:5000");
             var client = new Job.JobClient(channel);
-            var reply = await client.RegisterAsync(
-                new RegisterRequest { Description = inputTask, Data = inputData });
-            
-            
-        //    return View("JobId", reply.Id);
+            RegisterResponse reply = await client.RegisterAsync(
+                new RegisterRequest {Description = inputTask, Data = inputData});
 
-            return RedirectToAction("ShowRanking", reply);
+            TryToRiderct id = new TryToRiderct{ Resp = reply.Id};
+        
+            return RedirectToAction("ShowRanking", id);
         }
-
-        public IActionResult ShowRanking(RegisterResponse id)
+        
+        [HttpGet] 
+        public IActionResult ShowRanking(TryToRiderct id)
         {
+            Console.WriteLine("bb" + id + "bb");
+            
+            RegisterResponse reply  = new RegisterResponse{ Id = id.Resp};
+            
+
             using var channel = GrpcChannel.ForAddress("http://localhost:5000");
             var client = new Job.JobClient(channel);
-            var reply = client.GetProcessingResult(id.Id);
+            var repl = client.GetProcessingResult(reply);
             
-            return View("JobId", reply);
+            
+            
+            return View("JobId", repl);
         }
     }
 }

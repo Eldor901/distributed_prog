@@ -1,9 +1,15 @@
-﻿@model string;
+﻿@model BackendApi.ProcessingResult;
 
 @{
     
     ViewData["Title"] = "JobId";
-    
-}
-<h1>@Model</h1>
 
+}
+@if (Model.IsComplete)
+{
+    <p>Text rank: @Model.TextRank</p>
+}
+else
+{
+    <p>Cant not get text rank</p>
+}
