@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -8,6 +8,9 @@ using Microsoft.Extensions.Logging;
 using BackClient.Models;
 using Grpc.Net.Client;
 using BackendApi;
+
+
+
 
 namespace BackClient.Controllers
 {
@@ -34,16 +37,27 @@ namespace BackClient.Controllers
         }
         
         [HttpPost]
-        public  async Task<IActionResult> SendTask(string inputTask)
+        public  async Task<IActionResult> SendTask(string inputTask, string inputData)
         {
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             using var channel = GrpcChannel.ForAddress("http://localhost:5000");
             var client = new Job.JobClient(channel);
             var reply = await client.RegisterAsync(
-                new RegisterRequest { Description = inputTask });
-            Console.WriteLine("Job Id: " + reply.Id);
-            Console.WriteLine("Press any key to exit...");
-            return View("JobId", reply.Id);
+                new RegisterRequest { Description = inputTask, Data = inputData });
+            
+            
+        //    return View("JobId", reply.Id);
+
+            return RedirectToAction("ShowRanking", reply);
+        }
+
+        public IActionResult ShowRanking(RegisterResponse id)
+        {
+            using var channel = GrpcChannel.ForAddress("http://localhost:5000");
+            var client = new Job.JobClient(channel);
+            var reply = client.GetProcessingResult(id.Id);
+            
+            return View("JobId", reply);
         }
     }
 }
